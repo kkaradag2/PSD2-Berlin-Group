@@ -1,0 +1,576 @@
+{
+	"info": {
+		"_postman_id": "ccb1ad36-22a6-4bfc-9975-fa54e5c4bb5c",
+		"name": "Berlin Group Standart With Certificate",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "01- Create  Consent For Details",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsondata = JSON.parse(responseBody);\r",
+							"pm.collectionVariables.set(\"x-consent-id\", jsondata.consentId);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-request-id",
+						"value": "{{$guid}}",
+						"type": "text"
+					},
+					{
+						"key": "psu-ip-address",
+						"value": "192.168.8.78",
+						"type": "text"
+					},
+					{
+						"key": "TPP-Signature-Certificate",
+						"value": "{{x-certificate}}",
+						"type": "default"
+					},
+					{
+						"key": "PSU-ID",
+						"value": "{{x-customerId}}",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\"access\": {\r\n    \"balances\": [\r\n        { \"iban\": \"DE78502345000367250001\" },\r\n        { \"maskedPan\": \"525412******3241\" }\r\n        ],\r\n    \"transactions\": [\r\n        { \"iban\": \"DE78502345000367250001\" },\r\n           { \"maskedPan\": \"525412******3241\" }\r\n        ]\r\n    },   \r\n    \"recurringIndicator\": true,\r\n    \"validUntil\": \"2022-10-10\",\r\n    \"frequencyPerDay\": 4\r\n} ",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{Gateway_Server_Url}}/api/v1/consents"
+			},
+			"response": []
+		},
+		{
+			"name": "02- Authorize Consent",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsondata = JSON.parse(responseBody);",
+							"pm.collectionVariables.set(\"x-authorisationId\", jsondata.authorisationId);",
+							"pm.collectionVariables.set(\"x-confirmationCode\", jsondata.confirmationCode);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-request-id",
+						"value": "{{$guid}}",
+						"type": "text"
+					},
+					{
+						"key": "psu-ip-address",
+						"value": "192.168.8.78",
+						"type": "text"
+					},
+					{
+						"key": "consent-id",
+						"value": "{{x-consent-id}}",
+						"type": "text"
+					},
+					{
+						"key": "TPP-Signature-Certificate",
+						"value": "{{x-certificate}}",
+						"type": "default"
+					}
+				],
+				"url": "{{Gateway_Server_Url}}/api/v1/consents/{{x-consent-id}}/authorisations"
+			},
+			"response": []
+		},
+		{
+			"name": "03- Update Authorize Consent",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "oauth2",
+					"oauth2": {
+						"clientSecret": "{{clientSecret}}",
+						"clientId": "{{clientId}}",
+						"accessTokenUrl": "{{Identity_Server_Url}}/connect/token",
+						"tokenType": "Bearer",
+						"scope": "bank",
+						"grant_type": "client_credentials",
+						"tokenName": "token",
+						"addTokenTo": "header"
+					}
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "x-request-id",
+						"value": "{{$guid}}",
+						"type": "text"
+					},
+					{
+						"key": "PSU-IP-Address",
+						"value": "127.0.0.1",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "TPP-Signature-Certificate",
+						"value": "{{x-certificate}}",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"ConfirmationCode\": \"{{x-confirmationCode}}\"\n}"
+				},
+				"url": "{{Gateway_Server_Url}}/api/v1/consents/{{x-consent-id}}/authorisations/{{x-authorisationId}}"
+			},
+			"response": []
+		},
+		{
+			"name": "04- Get Account List",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsondata = JSON.parse(responseBody);",
+							"pm.collectionVariables.set(\"x-resourceId\", jsondata.accounts[0].resourceId);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-request-id",
+						"value": "{{$guid}}",
+						"type": "text"
+					},
+					{
+						"key": "TPP-Signature-Certificate",
+						"value": "{{x-certificate}}",
+						"type": "default"
+					},
+					{
+						"key": "Consent-ID",
+						"value": "{{x-consent-id}}",
+						"type": "default"
+					}
+				],
+				"url": "{{Gateway_Server_Url}}/api/v1/accounts"
+			},
+			"response": []
+		},
+		{
+			"name": "05- Get Account Details",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "consent-Id",
+						"value": "{{x-consent-id}}",
+						"type": "text"
+					},
+					{
+						"key": "x-request-id",
+						"value": "{{$guid}}",
+						"type": "text"
+					},
+					{
+						"key": "TPP-Signature-Certificate",
+						"value": "{{x-certificate}}",
+						"type": "default"
+					}
+				],
+				"url": "{{Gateway_Server_Url}}/api/v1/accounts/{{x-resourceId}}"
+			},
+			"response": []
+		},
+		{
+			"name": "06- Get Balances for Account",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "consent-Id",
+						"value": "{{x-consent-id}}",
+						"type": "text"
+					},
+					{
+						"key": "x-request-id",
+						"value": "{{$guid}}",
+						"type": "text"
+					},
+					{
+						"key": "TPP-Signature-Certificate",
+						"value": "{{x-certificate}}",
+						"type": "default"
+					}
+				],
+				"url": "{{Gateway_Server_Url}}/api/v1/accounts/{{x-resourceId}}/balances"
+			},
+			"response": []
+		},
+		{
+			"name": "07- Get Transactions for Account",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "consent-Id",
+						"value": "{{x-consent-id}}",
+						"type": "text"
+					},
+					{
+						"key": "x-request-id",
+						"value": "{{$guid}}",
+						"type": "text"
+					},
+					{
+						"key": "TPP-Signature-Certificate",
+						"value": "{{x-certificate}}",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{Gateway_Server_Url}}/api/v1/accounts/{{x-resourceId}}/transactions?bookingStatus=booked&dateFrom=2022-05-12&dateTo=2022-05-30",
+					"host": [
+						"{{Gateway_Server_Url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"accounts",
+						"{{x-resourceId}}",
+						"transactions"
+					],
+					"query": [
+						{
+							"key": "bookingStatus",
+							"value": "booked"
+						},
+						{
+							"key": "dateFrom",
+							"value": "2022-05-12"
+						},
+						{
+							"key": "dateTo",
+							"value": "2022-05-30"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "08- Payment Initiation for SEPA",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsondata = JSON.parse(responseBody);",
+							"pm.collectionVariables.set(\"x-payment-id\", jsondata.paymentId);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-request-id",
+						"value": "{{$guid}}",
+						"type": "text"
+					},
+					{
+						"key": "PSU-IP-Address",
+						"value": "127.0.0.1",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "TPP-Signature-Certificate",
+						"value": "{{x-certificate}}",
+						"type": "default"
+					},
+					{
+						"key": "PSU-ID",
+						"value": "{{x-customerId}}",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{        \r\n    \"instructedAmount\": {\"currency\": \"EUR\", \"amount\": \"0.5\"},\r\n    \"debtorAccount\": {\"iban\": \"DE59502345001812930001\"},\r\n    \"creditorName\": \"Kufa Girokonto\",\r\n    \"creditorAccount\": {\"currency\": \"EUR\",\"iban\": \"DE29502345000530220001\"},\r\n    \"remittanceInformationUnstructured\": \"Ref Number Merchant\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{Gateway_Server_Url}}/api/v1/payments/sepa-credit-transfers"
+			},
+			"response": []
+		},
+		{
+			"name": "09- Create Payment Authorize",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsondata = JSON.parse(responseBody);",
+							"pm.collectionVariables.set(\"x-authorisationId\", jsondata.authorisationId);",
+							"pm.collectionVariables.set(\"x-confirmationCode\", jsondata.confirmationCode);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-request-id",
+						"value": "{{$guid}}",
+						"type": "text"
+					},
+					{
+						"key": "PSU-IP-Address",
+						"value": "127.0.0.1",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "TPP-Signature-Certificate",
+						"value": "{{x-certificate}}",
+						"type": "default"
+					}
+				],
+				"url": "{{Gateway_Server_Url}}/api/v1/payments/sepa-credit-transfers/{{x-payment-id}}/authorisations"
+			},
+			"response": []
+		},
+		{
+			"name": "10- Update Authorize Payment Initiation",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "oauth2",
+					"oauth2": {
+						"clientSecret": "7c5919ee-1f2a-46d6-a06b-51019f2f6a45",
+						"clientId": "3e1ae3af-c89d-4fbb-81f4-bca412187aa4",
+						"accessTokenUrl": "{{Identity_Server_Url}}/connect/token",
+						"tokenType": "Bearer",
+						"scope": "bank",
+						"grant_type": "client_credentials",
+						"tokenName": "token",
+						"addTokenTo": "header"
+					}
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "x-request-id",
+						"value": "{{$guid}}",
+						"type": "text"
+					},
+					{
+						"key": "PSU-IP-Address",
+						"value": "127.0.0.1",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "TPP-Signature-Certificate",
+						"value": "{{x-certificate}}",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"ConfirmationCode\": \"{{x-confirmationCode}}\"\n}"
+				},
+				"url": "{{Gateway_Server_Url}}/api/v1/payments/instant-sepa-credit-transfers/{{x-payment-id}}/authorisations/{{x-authorisationId}}"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "x-customerId",
+			"value": "36725",
+			"type": "string"
+		},
+		{
+			"key": "x-certificate",
+			"value": "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",
+			"type": "string"
+		},
+		{
+			"key": "x-auth_req_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "x-access_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "x-consent-id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "x-balance-consent-id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "x-payment-Id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "x-authorisationId",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "payment-id",
+			"value": ""
+		},
+		{
+			"key": "x-payment-id",
+			"value": ""
+		},
+		{
+			"key": "x-confirmationCode",
+			"value": ""
+		},
+		{
+			"key": "x-authorisation-id",
+			"value": ""
+		},
+		{
+			"key": "x-authorisationIds",
+			"value": ""
+		},
+		{
+			"key": "x-cancellation-Id",
+			"value": ""
+		},
+		{
+			"key": "x-resourceId",
+			"value": ""
+		},
+		{
+			"key": "{{x-application-secret}}",
+			"value": "",
+			"type": "default",
+			"disabled": true
+		},
+		{
+			"key": "{{x-application-id}}",
+			"value": "",
+			"type": "default",
+			"disabled": true
+		},
+		{
+			"key": "x-certificate-3",
+			"value": "MIIIrTCCBpWgAwIBAgIMXgUhdR74+dPDC91fMA0GCSqGSIb3DQEBCwUAMHIxNjA0BgNVBAMMLUJWdHJ1c3QgUUEgVEVTVCBQU0QyIFFXQUMgQ0EgUEtDUzFfdjFfNSBSMjAxOTEQMA4GA1UECwwHQlZ0cnVzdDEZMBcGA1UECgwQQmFuay1WZXJsYWcgR21iSDELMAkGA1UEBhMCREUwHhcNMjIwMzIxMTI0MTE1WhcNMjQwMzIwMTI0MTE1WjCB6zEZMBcGA1UEDQwQdGVzdCBjZXJ0aWZpY2F0ZTETMBEGCysGAQQBgjc8AgEDEwJERTEYMBYGA1UEDwwPQnVzaW5lc3MgRW50aXR5MRQwEgYDVQQDDAt0cGNsLnBwaS5kZTEtMCsGA1UEBRMkMzYxMzAzZjAtY2MwNS00ODg4LTgwODQtODUzOTdkYmNjZjk4MRgwFgYDVQRhDA9QU0RERS1CQUZJTi1QUEkxDzANBgNVBAoMBlBQSSBBRzEQMA4GA1UEBwwHSGFtYnVyZzEQMA4GA1UECAwHSGFtYnVyZzELMAkGA1UEBhMCREUwggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQDfByScZZm28JFJ0ty0R6N0cIKXXybgoimnQVU7pKoyx+4oAb2JGPBjh0cXjMrTOvPvIh821zXqhGlJGVEt6Ip9mFJTDRByG+LZqBs7KNCJdUOiucT9qEoBe+t7S0sKMJzMn0x8+7Rgy4Hxkd8YOJN13PC1qWVGIPPYaIwqpP7Zak+7ImUIMe1GVn7DdZnlGl+7rfciBF1qrLCt6WpdezUH2dgCG80cwCHhCnGhyy1dwHpV9UPXEnEKAC0zQvagjFuiH9d86cLpMxHOgGskowTeURPFbZ5NDppsQXBXmjAlA2lW4yVqoFwiQesFLEONbmUkr5adwkw6PrXOhoueEx/CDlLb6bkLvhn55/gldqVv+TsOmasfiIlTakv6Nf9YPn5+kpsW8cancccAixJ8FsGba7CZs4Lk2KIX2ygK/j6dIWILU8pZm81b+3VTr9fIFh4jRAF3Pqj1qJG2wrLdbPgtXMTYKaFnReRZ5DarMGHRR7UKJ8WPGizyIv1lvZD461yobWy3mZqsE1fhLslV7enY4cg19qJzTjZrZZL2Va3qBG3a7bhRmHCYnmyiFfOBwUzUA+sXajnAYwY/d6pAFTIfpJJiHuDEjr57aTlugDUdxOmgkki+SgpnWZ/Kb7uYFqkf3armTHZ10m1CL8oBcRCSkNq2iHaxqgElNf7t038ppQIDAQABo4ICxzCCAsMwDAYDVR0TAQH/BAIwADAfBgNVHSMEGDAWgBSpRM4WD8H/li7hxftBj5uqHwT9HzCBkAYIKwYBBQUHAQEEgYMwgYAwUgYIKwYBBQUHMAKGRmh0dHA6Ly9vY3NwLXFhLmJhbmstdmVybGFnLmRlL2NhY2VydD9zSGFzaD1rRXV1V2xSSzNqenF4OUJNcFdxeU5ORVpHV1UwKgYIKwYBBQUHMAGGHmh0dHA6Ly9vY3NwLXFhLmJhbmstdmVybGFnLmRlLzAWBgNVHREEDzANggt0cGNsLnBwaS5kZTBeBgNVHSAEVzBVMAkGBwQAi+xAAQQwSAYLKwYBBAGDjREBAgIwOTA3BggrBgEFBQcCARYraHR0cHM6Ly93d3cuYmFuay12ZXJsYWcuZGUvYnZ0cnVzdC1wc2QtcXdhYzAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwEwggE3BggrBgEFBQcBAwSCASkwggElMBUGCCsGAQUFBwsCMAkGBwQAi+xJAQIwCAYGBACORgEBMBMGBgQAjkYBBjAJBgcEAI5GAQYDMF4GBgQAjkYBBTBUMCgWImh0dHBzOi8vd3d3LmJhbmstdmVybGFnLmRlL2J2dHJ1c3QTAmVuMCgWImh0dHBzOi8vd3d3LmJhbmstdmVybGFnLmRlL2J2dHJ1c3QTAmRlMIGMBgYEAIGYJwIwgYEwTDARBgcEAIGYJwEBDAZQU1BfQVMwEQYHBACBmCcBAgwGUFNQX1BJMBEGBwQAgZgnAQMMBlBTUF9BSTARBgcEAIGYJwEEDAZQU1BfSUMMJ0ZlZGVyYWwgRmluYW5jaWFsIFN1cGVydmlzb3J5IEF1dGhvcml0eQwIREUtQkFGSU4wHQYDVR0OBBYEFLUhfRQ4bLDvMV41kZt0FtsIhWoCMA4GA1UdDwEB/wQEAwIFoDANBgkqhkiG9w0BAQsFAAOCAgEAXxz/U3jRtLlboNtGFyblDKu441HLYmvokPWdNXs+q4SgjSmihvflKheqjTEzBWhcs8QYMkkxra6JOzuvLm4UIAWBvn/Eq4CS3x/gQ9UgIpiR9Yr1OwnW8IbryMNemb8NFp/9T7jaOwjnxDsG07yjoj5JeytvexkLEUDOTPYpvHYrOuki/VXbweY4s5uS1rjCqTgGoH/4hWQKl54paQrLcm8jCH4zgsvbMsJLIcJ1UDEi8TTKUt9ILeGoHQ5e09yttLYQV8OkqAN2qbA0uWYG+7LtwRWfR2RCD/R4hLYkDeAL48OmQ8pOvhpTODipAyCT9mKnnG4Ga8GX/Pm5r+D4jGEdbkWgtpCi5itw/Mwy3TyYIJF9ksR3hmnlVizMwf6s70npGESCWhY04YTFqDNco/o0Fbc4Xho2mqTjhr8YAa3FrIHq3iLARVzd7yFhrqC+tp+hxTVYRRP2fWTMPhEq15a61/EakbTCZbQOwTxAi3oOKRxzbikIkfGFIUlIyNQVoOCSzxfGRBEfdiJUxlSnyPdps0fxGg2b0m4tPzNmOyWCGfKkuj03GQPP3xJOCWTrsRjpx0hfMOhVONSOVapcg2H6VQD68LwSRYYGNyDYd9I3Oqd5npNIdo4keN/iUBN3pcbCu1pLZ7pWE849p0hWcoNPRa4ex6auwHKoZdrLB3o=",
+			"type": "default",
+			"disabled": true
+		},
+		{
+			"key": "x-certificate",
+			"value": "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",
+			"type": "default",
+			"disabled": true
+		}
+	]
+}
