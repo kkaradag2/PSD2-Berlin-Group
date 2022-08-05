@@ -16,5 +16,6 @@ Enviroment Files
 How can I use KT Bank AG PSD2 APIs in Postman collection (Youtobe video)
 -----------------
 
-[![IMAGE_ALT](https://img.youtube.com/vi/UmX4kyB2wfg/0.jpg)]([https://www.youtube.com/watch?v=UmX4kyB2wfg](https://www.youtube.com/watch?v=j2oTEc8MckI))
+
+[![IMAGE_ALT](https://user-images.githubusercontent.com/11753728/183087390-bc6a6440-f4cf-4d54-bd5b-22ab88a0b184.png)]([https://www.youtube.com/watch?v=UmX4kyB2wfg](https://www.youtube.com/watch?v=j2oTEc8MckI))
 
