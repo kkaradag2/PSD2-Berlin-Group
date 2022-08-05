@@ -4,7 +4,8 @@ KT Bank AG Berlin Group standard postman collections
 
 Collection File
 ---------------------
-Berlin Group Standart.postman_collection
+Berlin Group Standart.postman_collection 
+<a id="raw-url" href="https://raw.githubusercontent.com/github-username/project/master/filename">Download FILE</a>
 
 
 Enviroment Files
